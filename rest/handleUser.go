@@ -2,12 +2,13 @@ package rest
 
 import (
 	"net/http"
-	"github.com/5pplication/Server/db"
+
+	database "github.com/5pplication/Server/db"
 	"github.com/gin-gonic/gin"
 )
 
-func HandleAllUsers(c* gin.Context){
-	users, loadErr := db.LoadUsers()
+func HandleAllUsers(c *gin.Context) {
+	users, loadErr := database.LoadUsers()
 	if loadErr != nil {
 		panic(loadErr)
 	}

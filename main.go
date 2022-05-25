@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/5pplication/Server/rest"
+	"github.com/5pplication/Server/login"
 )
 
 /*
@@ -11,5 +11,5 @@ func main() {
 */
 
 func main() {
-	rest.Api().Run()
+	login.Login()
 }

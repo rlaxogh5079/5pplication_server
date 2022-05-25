@@ -1,8 +1,8 @@
-package db
+package database
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 )
 
 const (
@@ -14,36 +14,36 @@ const (
 )
 
 type User struct {
-	Email		 string `json:"email"`
-	Id       string `json:"id"`
-	Nickname string `json:"name"`
-	Password string `json:"password"`
+	Email        string `json:"email"`
+	Id           string `json:"id"`
+	Nickname     string `json:"name"`
+	Password     string `json:"password"`
 	StoreArticle string `json:"storeArticle"`
 }
 
-type Article struct{
-	AtclNo string `json:"atclNo"`
-	UserId string `json:"userId"`
-	Long float32 `json:"longitude"`
-	Lat float32 `json:"latitude"`
-	Title string `json:"title"`
-	Body string `json:"body"`
-	Date string `json:"date"`
-	Likecnt int `json:"likecnt"`
+type Article struct {
+	AtclNo   string                 `json:"atclNo"`
+	UserId   string                 `json:"userId"`
+	Long     float32                `json:"longitude"`
+	Lat      float32                `json:"latitude"`
+	Title    string                 `json:"title"`
+	Body     string                 `json:"body"`
+	Date     string                 `json:"date"`
+	Likecnt  int                    `json:"likecnt"`
 	Comments map[string]interface{} `json:"comments"`
 }
 
-type Comment struct{
-	CommentNo string `json:"commentNo"`
-	UserId string `json:"userId"`
-	Dislikecnt int `json:"dislikecnt"`
-	Likecnt int `json:"likecnt"`
-	Body string `json:"body"`
-	Commentcnt int `json:"commentCount"`
+type Comment struct {
+	CommentNo  string `json:"commentNo"`
+	UserId     string `json:"userId"`
+	Dislikecnt int    `json:"dislikecnt"`
+	Likecnt    int    `json:"likecnt"`
+	Body       string `json:"body"`
+	Commentcnt int    `json:"commentCount"`
 }
 
-func checkErr(err error) bool{
-	if err != nil{
+func checkErr(err error) bool {
+	if err != nil {
 		fmt.Println(err.Error())
 		return true
 	}
@@ -56,5 +56,5 @@ func ConnectDB() (*sql.DB, error) {
 		fmt.Println("데이터베이스 연결 성공")
 	}
 
-	return db,mysqlErr
+	return db, mysqlErr
 }

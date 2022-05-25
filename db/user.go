@@ -1,18 +1,16 @@
-package db
+package database
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"encoding/json"
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-
 func LoadUsers() ([]map[string]interface{}, error) {
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr){
+	if checkErr(mysqlErr) {
 		detectedErr = mysqlErr
 	}
 	defer db.Close()
@@ -48,10 +46,10 @@ func LoadUsers() ([]map[string]interface{}, error) {
 	return users, detectedErr
 }
 
-func InsertUser(userEmail string,userId string, userName string, userPassword string, userStoreArticle string) error {
+func InsertUser(userEmail string, userId string, userName string, userPassword string, userStoreArticle string) error {
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr){
+	if checkErr(mysqlErr) {
 		detectedErr = mysqlErr
 	}
 	defer db.Close()
@@ -75,46 +73,4 @@ func InsertUser(userEmail string,userId string, userName string, userPassword st
 		fmt.Println("데이터 삽입성공")
 	}
 	return detectedErr
-}
-
-func CheckLogin(userId string, userPassword []byte, userEmail string) (int, error) { // 로그인 성공 -> 1, 로그인 실패 -> 0, 아이디 존재 X -> -1
-	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr){
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
-
-	var user User
-	dataErr := db.QueryRow(fmt.Sprintf("SELECT * FROM user WHERE id=\"%v\" OR email=\"%v\"",userId, userEmail)).Scan(&user.Email, &user.Id, &user.Nickname, &user.Password) // 테이블에서 정보를 가져와 rows에 저장
-	if checkErr(dataErr) {
-		detectedErr = dataErr
-	} else {
-		fmt.Println("데이터 로드 성공")
-	}
-	
-	if userEmail=="" {
-		if user.Id == userId {
-			compareErr := bcrypt.CompareHashAndPassword([]byte(user.Password), userPassword)
-			fmt.Println(string(user.Password), string(userPassword))
-			fmt.Println(compareErr)
-			if compareErr != nil {
-				return 0, detectedErr
-			} else {
-				return 1, detectedErr
-			}
-		} else {
-			return -1, detectedErr
-		}
-	} else {
-		if user.Email == userEmail {
-			compareErr := bcrypt.CompareHashAndPassword([]byte(user.Password), userPassword)
-			if compareErr != nil {
-				return 0, detectedErr
-			} else {
-				return 1, detectedErr
-			} 
-		} 
-		return -1, detectedErr
-	}
 }

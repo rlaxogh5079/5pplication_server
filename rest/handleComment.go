@@ -2,12 +2,13 @@ package rest
 
 import (
 	"net/http"
+
+	database "github.com/5pplication/Server/db"
 	"github.com/gin-gonic/gin"
-	"github.com/5pplication/Server/db"
 )
 
-func HandleComments(c* gin.Context){
+func HandleComments(c *gin.Context) {
 	userId := c.Param("userId")
-	comments := db.LoadComment(userId)
+	comments := database.LoadComment(userId)
 	c.JSON(http.StatusOK, comments)
 }

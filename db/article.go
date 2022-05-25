@@ -1,21 +1,21 @@
-package db
+package database
 
-import(
-	"fmt"
+import (
 	"encoding/json"
+	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func LoadArticle(long float64, lat float64) ([]map[string] interface	{}, error){ // 해당 좌표에 있는 모든 글을 불러옴
+func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) { // 해당 좌표에 있는 모든 글을 불러옴
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr){
+	if checkErr(mysqlErr) {
 		detectedErr = mysqlErr
 	}
 	defer db.Close()
 
-	rows, dataErr := db.Query(fmt.Sprintf("SELECT * FROM article WHERE ROUND(longitude,3)=%v and ROUND(latitude,3)=%v", long, lat)) 
+	rows, dataErr := db.Query(fmt.Sprintf("SELECT * FROM article WHERE ROUND(longitude,3)=%v and ROUND(latitude,3)=%v", long, lat))
 	if checkErr(dataErr) {
 		detectedErr = dataErr
 	} else {
@@ -29,14 +29,14 @@ func LoadArticle(long float64, lat float64) ([]map[string] interface	{}, error){
 	var trash *string
 
 	for rows.Next() {
-		loadErr := rows.Scan(&article.AtclNo , &trash, &trash, &trash, &article.Title, &article.Body, &article.Date, &trash, &trash)
+		loadErr := rows.Scan(&article.AtclNo, &trash, &trash, &trash, &article.Title, &article.Body, &article.Date, &trash, &trash)
 		if checkErr(loadErr) {
 			detectedErr = loadErr
 		}
 
 		articleByte, _ := json.Marshal(article)
 		json.Unmarshal(articleByte, &articleData)
-		fmt.Printf("데이터 : %v\n",article)
+		fmt.Printf("데이터 : %v\n", article)
 		articles = append(articles, articleData)
 	}
 	if detectedErr == nil {
@@ -48,7 +48,7 @@ func LoadArticle(long float64, lat float64) ([]map[string] interface	{}, error){
 func InsertArticle(atclNo string, userId string, long float32, lat float32, title string, body string, date string, likecnt int, comments map[string]interface{}) error {
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr){
+	if checkErr(mysqlErr) {
 		detectedErr = mysqlErr
 	}
 	defer db.Close()
@@ -78,21 +78,21 @@ func InsertArticle(atclNo string, userId string, long float32, lat float32, titl
 	return detectedErr
 }
 
-func SelectArticle(atclNo string) (map[string]interface{}, error){
+func SelectArticle(atclNo string) (map[string]interface{}, error) {
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr){
+	if checkErr(mysqlErr) {
 		detectedErr = mysqlErr
 	}
 	defer db.Close()
-	
-	rows, dataErr := db.Query(fmt.Sprintf("SELECT * FROM article WHERE atclNo=\"%s\"", atclNo ))
+
+	rows, dataErr := db.Query(fmt.Sprintf("SELECT * FROM article WHERE atclNo=\"%s\"", atclNo))
 	checkErr(dataErr)
 
 	var article Article
-	var articleData map[string] interface{}
+	var articleData map[string]interface{}
 
-	for rows.Next(){
+	for rows.Next() {
 		loadErr := rows.Scan(&article.AtclNo, &article.UserId, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date, &article.Likecnt, &article.Comments)
 		checkErr(loadErr)
 
@@ -103,11 +103,10 @@ func SelectArticle(atclNo string) (map[string]interface{}, error){
 	return articleData, detectedErr
 }
 
-
 func SelectUserArticle(userId string) (map[string]interface{}, error) {
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr){
+	if checkErr(mysqlErr) {
 		detectedErr = mysqlErr
 	}
 	defer db.Close()
@@ -129,6 +128,6 @@ func SelectUserArticle(userId string) (map[string]interface{}, error) {
 		userByte, _ := json.Marshal(user)
 		json.Unmarshal(userByte, &userData)
 	}
-	
+
 	return userData, detectedErr
 }
