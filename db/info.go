@@ -33,14 +33,6 @@ type Article struct {
 	Comments map[string]interface{} `json:"comments"`
 }
 
-type Comment struct {
-	CommentNo  string `json:"commentNo"`
-	UserId     string `json:"userId"`
-	Dislikecnt int    `json:"dislikecnt"`
-	Likecnt    int    `json:"likecnt"`
-	Body       string `json:"body"`
-	Commentcnt int    `json:"commentCount"`
-}
 
 func checkErr(err error) bool {
 	if err != nil {

@@ -9,7 +9,6 @@ func Api() *gin.Engine {
 
 	router.GET("/users", HandleAllUsers)
 	router.GET("/article/:long/:lat/", HandleArticles)
-	router.GET("/comment/:userId", HandleComments)
 
 	return router
 }
