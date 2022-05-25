@@ -1,6 +1,7 @@
 package db
 
 import (
+	"golang.org/x/crypto/bcrypt"
 	"encoding/json"
 	"fmt"
 
@@ -61,7 +62,7 @@ func InsertUser(userEmail string,userId string, userName string, userPassword st
 	user.Nickname = userName
 	user.Password = userPassword
 
-	statement, prepareErr := db.Prepare(" INSERT INTO user(email, id, nickname, password) VALUE (?, ?, ?, ?);")
+	statement, prepareErr := db.Prepare("INSERT INTO user(email, id, nickname, password) VALUE (?, ?, ?, ?);")
 	if checkErr(prepareErr) {
 		detectedErr = prepareErr
 	}
@@ -75,7 +76,7 @@ func InsertUser(userEmail string,userId string, userName string, userPassword st
 	return detectedErr
 }
 
-func CheckLogin(userId string, userPassword string, userEmail string) (bool, error) {
+func CheckLogin(userId string, userPassword []byte, userEmail string) (int, error) { // 로그인 성공 -> 1, 로그인 실패 -> 0, 아이디 존재 X -> -1
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
 	if checkErr(mysqlErr){
@@ -92,8 +93,27 @@ func CheckLogin(userId string, userPassword string, userEmail string) (bool, err
 	}
 	
 	if userEmail=="" {
-		return bool(user.Id == userId && user.Password == userPassword), detectedErr
+		if user.Id == userId {
+			compareErr := bcrypt.CompareHashAndPassword([]byte(user.Password), userPassword)
+			fmt.Println(string(user.Password), string(userPassword))
+			fmt.Println(compareErr)
+			if compareErr != nil {
+				return 0, detectedErr
+			} else {
+				return 1, detectedErr
+			}
+		} else {
+			return -1, detectedErr
+		}
 	} else {
-		return bool(user.Email == userEmail && user.Password == userPassword), detectedErr
+		if user.Email == userEmail {
+			compareErr := bcrypt.CompareHashAndPassword([]byte(user.Password), userPassword)
+			if compareErr != nil {
+				return 0, detectedErr
+			} else {
+				return 1, detectedErr
+			} 
+		} 
+		return -1, detectedErr
 	}
 }
