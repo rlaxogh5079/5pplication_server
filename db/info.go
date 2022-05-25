@@ -18,6 +18,7 @@ type User struct {
 	Id       string `json:"id"`
 	Nickname string `json:"name"`
 	Password string `json:"password"`
+	StoreArticle string `json:"storeArticle"`
 }
 
 type Article struct{
