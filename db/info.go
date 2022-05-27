@@ -15,24 +15,23 @@ const (
 
 type User struct {
 	Email        string `json:"email"`
-	Id           string `json:"id"`
 	Nickname     string `json:"name"`
 	Password     string `json:"password"`
 	StoreArticle string `json:"storeArticle"`
 }
 
 type Article struct {
-	AtclNo   string                 `json:"atclNo"`
-	UserId   string                 `json:"userId"`
-	Long     float32                `json:"longitude"`
-	Lat      float32                `json:"latitude"`
-	Title    string                 `json:"title"`
-	Body     string                 `json:"body"`
-	Date     string                 `json:"date"`
-	Likecnt  int                    `json:"likecnt"`
-	Comments map[string]interface{} `json:"comments"`
+	AtclNo    string                 `json:"atclNo"`
+	UserEmail string                 `json:"userEmail"`
+	Share     bool                   `json:share`
+	Long      float32                `json:"longitude"`
+	Lat       float32                `json:"latitude"`
+	Title     string                 `json:"title"`
+	Body      string                 `json:"body"`
+	Date      string                 `json:"date"`
+	Likecnt   int                    `json:"likecnt"`
+	Tag       map[string]interface{} `json:"tag"`
 }
-
 
 func checkErr(err error) bool {
 	if err != nil {

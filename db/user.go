@@ -29,7 +29,7 @@ func LoadUsers() ([]map[string]interface{}, error) {
 		var user User
 		var userData map[string]interface{}
 
-		loadErr := rows.Scan(&user.Email, &user.Id, &user.Nickname, &user.Password, &user.StoreArticle)
+		loadErr := rows.Scan(&user.Email, &user.Nickname, &user.Password, &user.StoreArticle)
 		if checkErr(loadErr) {
 			detectedErr = loadErr
 		}
@@ -46,7 +46,7 @@ func LoadUsers() ([]map[string]interface{}, error) {
 	return users, detectedErr
 }
 
-func InsertUser(userEmail string, userId string, userName string, userPassword string, userStoreArticle string) error {
+func InsertUser(userEmail string, userName string, userPassword string, userStoreArticle string) error {
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
 	if checkErr(mysqlErr) {
@@ -56,18 +56,17 @@ func InsertUser(userEmail string, userId string, userName string, userPassword s
 
 	var user User
 	user.Email = userEmail
-	user.Id = userId
 	user.Nickname = userName
 	user.Password = userPassword
 	user.StoreArticle = userStoreArticle
 
-	statement, prepareErr := db.Prepare("INSERT INTO user VALUE (?, ?, ?, ?, ?);")
+	statement, prepareErr := db.Prepare("INSERT INTO user VALUE (?, ?, ?, ?);")
 	if checkErr(prepareErr) {
 		detectedErr = prepareErr
 	}
-	_, insertErr := statement.Exec(user.Email, user.Id, user.Nickname, user.Password, userStoreArticle)
+	_, insertErr := statement.Exec(user.Email, user.Nickname, user.Password, userStoreArticle)
 	if checkErr(insertErr) {
-		fmt.Printf("(%s, %s, %s)데이터가 이미 존재함\n", user.Email, user.Id, user.Nickname) // UNIQUE KEY
+		fmt.Printf("(%s)데이터가 이미 존재함\n", user.Email) // UNIQUE KEY
 		detectedErr = mysqlErr
 	} else {
 		fmt.Println("데이터 삽입성공")

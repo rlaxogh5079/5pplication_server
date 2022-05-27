@@ -45,7 +45,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) { 
 	return articles, detectedErr
 }
 
-func InsertArticle(atclNo string, userId string, long float32, lat float32, title string, body string, date string, likecnt int, comments map[string]interface{}) error {
+func InsertArticle(atclNo string, userEmail string, share bool, long float32, lat float32, title string, body string, date string, likecnt int, tag map[string]interface{}) error {
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
 	if checkErr(mysqlErr) {
@@ -55,20 +55,21 @@ func InsertArticle(atclNo string, userId string, long float32, lat float32, titl
 
 	var article Article
 	article.AtclNo = atclNo
-	article.UserId = userId
+	article.UserEmail = userEmail
+	article.Share = share
 	article.Long = long
 	article.Lat = lat
 	article.Title = title
 	article.Body = body
 	article.Date = date
 	article.Likecnt = likecnt
-	article.Comments = comments
+	article.Tag = tag
 
-	statement, prepareErr := db.Prepare(" INSERT INTO article(atclNo, userId, longitude, latitude, title, body ,date ,likecnt, comments) VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?);")
+	statement, prepareErr := db.Prepare(" INSERT INTO article VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
 	if checkErr(prepareErr) {
 		detectedErr = prepareErr
 	}
-	_, insertErr := statement.Exec(article.AtclNo, article.UserId, article.Long, article.Lat, article.Title, article.Body, article.Date, article.Likecnt, article.Comments)
+	_, insertErr := statement.Exec(article.AtclNo, article.UserEmail, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Date, article.Likecnt, article.Tag)
 	if checkErr(insertErr) {
 		fmt.Printf("(%s) 데이터가 이미 존재함\n", article.AtclNo)
 		detectedErr = insertErr
@@ -93,7 +94,7 @@ func SelectArticle(atclNo string) (map[string]interface{}, error) {
 	var articleData map[string]interface{}
 
 	for rows.Next() {
-		loadErr := rows.Scan(&article.AtclNo, &article.UserId, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date, &article.Likecnt, &article.Comments)
+		loadErr := rows.Scan(&article.AtclNo, &article.UserEmail, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date, &article.Likecnt, &article.Tag)
 		checkErr(loadErr)
 
 		fmt.Printf("데이터 : %v", article)
@@ -103,7 +104,7 @@ func SelectArticle(atclNo string) (map[string]interface{}, error) {
 	return articleData, detectedErr
 }
 
-func SelectUserArticle(userId string) (map[string]interface{}, error) {
+func SelectUserArticle(userEmail string) (map[string]interface{}, error) {
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
 	if checkErr(mysqlErr) {
@@ -111,7 +112,7 @@ func SelectUserArticle(userId string) (map[string]interface{}, error) {
 	}
 	defer db.Close()
 
-	rows, dataErr := db.Query(fmt.Sprintf("SELECT * FROM article WHERE userId=\"%s\"", userId)) // userId가 작성한 글의 내용을 전부 조회
+	rows, dataErr := db.Query(fmt.Sprintf("SELECT * FROM article WHERE email=\"%s\"", userEmail)) // userEmail이 작성한 글의 내용을 전부 조회
 	if checkErr(dataErr) {
 		detectedErr = dataErr
 	}
@@ -119,7 +120,7 @@ func SelectUserArticle(userId string) (map[string]interface{}, error) {
 	var user User
 	var userData map[string]interface{}
 	for rows.Next() {
-		loadErr := rows.Scan(&user.Email, &user.Id, &user.Nickname, &user.Password)
+		loadErr := rows.Scan(&user.Email, &user.Nickname, &user.Password, &user.StoreArticle)
 		if checkErr(loadErr) {
 			detectedErr = loadErr
 		}
