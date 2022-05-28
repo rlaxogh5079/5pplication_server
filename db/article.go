@@ -41,7 +41,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 	}
 	if detectedErr == nil {
 		fmt.Println("데이터 반환 완료")
-	}
+	} 
 	return articles, detectedErr
 }
 

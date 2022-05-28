@@ -66,7 +66,7 @@ func InsertUser(userEmail string, userName string, userPassword string, userStor
 	_, insertErr := statement.Exec(user.Email, user.Nickname, user.Password, userStoreArticle)
 	if checkErr(insertErr) {
 		fmt.Printf("(%s)데이터가 이미 존재함\n", user.Email) // Primary Key
-		detectedErr = mysqlErr
+		detectedErr = insertErr
 	} else {
 		fmt.Println("데이터 삽입성공")
 	}
