@@ -16,7 +16,7 @@ const (
 type User struct {
 	Email        string `json:"email"`
 	Nickname     string `json:"name"`
-	Password     string `json:"password"`
+	Password     []byte `json:"password"`
 	StoreArticle string `json:"storeArticle"`
 }
 

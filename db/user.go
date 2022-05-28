@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/json"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -47,6 +48,7 @@ func LoadUsers() ([]map[string]interface{}, error) {
 
 func InsertUser(userEmail string, userName string, userPassword string, userStoreArticle string) error {
 	var detectedErr error = nil
+	var generatedErr error = nil
 	db, mysqlErr := ConnectDB()
 	if checkErr(mysqlErr) {
 		detectedErr = mysqlErr
@@ -56,9 +58,12 @@ func InsertUser(userEmail string, userName string, userPassword string, userStor
 	var user User
 	user.Email = userEmail
 	user.Nickname = userName
-	user.Password = userPassword
+	user.Password, generatedErr = bcrypt.GenerateFromPassword([]byte(userPassword),bcrypt.DefaultCost)
 	user.StoreArticle = userStoreArticle
 
+	if checkErr(generatedErr) {
+		detectedErr = generatedErr
+	}
 	statement, prepareErr := db.Prepare("INSERT INTO user VALUE (?, ?, ?, ?);")
 	if checkErr(prepareErr) {
 		detectedErr = prepareErr
@@ -91,3 +96,15 @@ func SelectUser(userEmail string) (User, error) {
 
 	return user, detectedErr
 }
+/*
+func RemoveUser(userEmail string) (bool, error) {
+	var detectedErr error = nil
+	db, mysqlErr := ConnectDB()
+	if checkErr(mysqlErr) {
+		detectedErr = mysqlErr
+	}
+	defer db.Close()
+
+
+}
+*/
