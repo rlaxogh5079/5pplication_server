@@ -9,8 +9,8 @@ func Api() *gin.Engine {
 
 	router.GET("/users", GETAllUsers)
 	router.GET("/article/:long/:lat/", GETArticles)
-	router.GET("login", GETLogin)
 	router.POST("/login", POSTLogin)
+	router.POST("/signup", POSTSignUp)
 
 	return router
 }
