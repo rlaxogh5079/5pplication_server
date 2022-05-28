@@ -1,15 +1,9 @@
 package main
 
 import (
-	"github.com/5pplication/Server/login"
+	"github.com/5pplication/Server/server"
 )
 
-/*
 func main() {
-	rest.Api().Run()
-}
-*/
-
-func main() {
-	login.Login()
+	server.Api().Run()
 }

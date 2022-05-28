@@ -20,17 +20,23 @@ type User struct {
 	StoreArticle string `json:"storeArticle"`
 }
 
+type UserWithoutPassword struct {
+	Email        string `json:"email"`
+	Nickname     string `json:"name"`
+	StoreArticle string `json:"storeArticle"`
+}
+
 type Article struct {
-	AtclNo    string                 `json:"atclNo"`
-	UserEmail string                 `json:"userEmail"`
-	Share     bool                   `json:share`
-	Long      float32                `json:"longitude"`
-	Lat       float32                `json:"latitude"`
-	Title     string                 `json:"title"`
-	Body      string                 `json:"body"`
-	Date      string                 `json:"date"`
-	Likecnt   int                    `json:"likecnt"`
-	Tag       map[string]interface{} `json:"tag"`
+	AtclNo  string                 `json:"atclNo"`
+	Email   string                 `json:"email"`
+	Share   bool                   `json:"share"`
+	Long    float32                `json:"longitude"`
+	Lat     float32                `json:"latitude"`
+	Title   string                 `json:"title"`
+	Body    string                 `json:"body"`
+	Date    string                 `json:"date"`
+	Likecnt int                    `json:"likecnt"`
+	Tag     map[string]interface{} `json:"tag"`
 }
 
 func checkErr(err error) bool {
@@ -42,7 +48,7 @@ func checkErr(err error) bool {
 }
 
 func ConnectDB() (*sql.DB, error) {
-	db, mysqlErr := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4", Username, Password, Host, Port, Database))
+	db, mysqlErr := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4", Username, Password, Host, Port, Database))
 	if !checkErr(mysqlErr) {
 		fmt.Println("데이터베이스 연결 성공")
 	}

@@ -1,4 +1,4 @@
-package rest
+package server
 
 import (
 	"net/http"
@@ -8,12 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func HandleArticles(c *gin.Context) {
-	long, longerr := strconv.ParseFloat(c.Param("long"), 6)
+func GETArticles(c *gin.Context) {
+	long, longerr := strconv.ParseFloat(c.Param("long"), 64)
 	if longerr != nil {
 		panic(longerr)
 	}
-	lat, laterr := strconv.ParseFloat(c.Param("lat"), 6)
+	lat, laterr := strconv.ParseFloat(c.Param("lat"), 64)
 	if laterr != nil {
 		panic(laterr)
 	}

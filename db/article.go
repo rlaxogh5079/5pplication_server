@@ -7,7 +7,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) { // 해당 좌표에 있는 모든 글을 불러옴
+func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
+	// 데이터베이스로 부터 해당 좌표에 있는 모든 글을 불러오는 함수
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
 	if checkErr(mysqlErr) {
@@ -15,7 +16,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) { 
 	}
 	defer db.Close()
 
-	rows, dataErr := db.Query(fmt.Sprintf("SELECT * FROM article WHERE ROUND(longitude,3)=%v and ROUND(latitude,3)=%v", long, lat))
+	rows, dataErr := db.Query(fmt.Sprintf("SELECT atclNo, email, longitude, latitude, title, body, date FROM article WHERE ROUND(longitude,3)=%v and ROUND(latitude,3)=%v", long, lat))
 	if checkErr(dataErr) {
 		detectedErr = dataErr
 	} else {
@@ -26,10 +27,9 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) { 
 	var article Article
 	var articleData map[string]interface{}
 	var articles []map[string]interface{}
-	var trash *string
 
 	for rows.Next() {
-		loadErr := rows.Scan(&article.AtclNo, &trash, &trash, &trash, &article.Title, &article.Body, &article.Date, &trash, &trash)
+		loadErr := rows.Scan(&article.AtclNo, &article.Email, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date)
 		if checkErr(loadErr) {
 			detectedErr = loadErr
 		}
@@ -45,7 +45,8 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) { 
 	return articles, detectedErr
 }
 
-func InsertArticle(atclNo string, userEmail string, share bool, long float32, lat float32, title string, body string, date string, likecnt int, tag map[string]interface{}) error {
+func InsertArticle(atclNo string, email string, share bool, long float32, lat float32, title string, body string, date string, likecnt int, tag map[string]interface{}) error {
+	// 데이터베이스에 글 정보를 입력하는 함수
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
 	if checkErr(mysqlErr) {
@@ -55,7 +56,7 @@ func InsertArticle(atclNo string, userEmail string, share bool, long float32, la
 
 	var article Article
 	article.AtclNo = atclNo
-	article.UserEmail = userEmail
+	article.Email = email
 	article.Share = share
 	article.Long = long
 	article.Lat = lat
@@ -65,11 +66,11 @@ func InsertArticle(atclNo string, userEmail string, share bool, long float32, la
 	article.Likecnt = likecnt
 	article.Tag = tag
 
-	statement, prepareErr := db.Prepare(" INSERT INTO article VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
+	statement, prepareErr := db.Prepare("INSERT INTO article VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
 	if checkErr(prepareErr) {
 		detectedErr = prepareErr
 	}
-	_, insertErr := statement.Exec(article.AtclNo, article.UserEmail, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Date, article.Likecnt, article.Tag)
+	_, insertErr := statement.Exec(article.AtclNo, article.Email, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Date, article.Likecnt, article.Tag)
 	if checkErr(insertErr) {
 		fmt.Printf("(%s) 데이터가 이미 존재함\n", article.AtclNo)
 		detectedErr = insertErr
@@ -80,6 +81,7 @@ func InsertArticle(atclNo string, userEmail string, share bool, long float32, la
 }
 
 func SelectArticle(atclNo string) (map[string]interface{}, error) {
+	// 해당 글번호를 가진 글을 불러옴
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
 	if checkErr(mysqlErr) {
@@ -94,7 +96,7 @@ func SelectArticle(atclNo string) (map[string]interface{}, error) {
 	var articleData map[string]interface{}
 
 	for rows.Next() {
-		loadErr := rows.Scan(&article.AtclNo, &article.UserEmail, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date, &article.Likecnt, &article.Tag)
+		loadErr := rows.Scan(&article.AtclNo, &article.Email, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date, &article.Likecnt, &article.Tag)
 		checkErr(loadErr)
 
 		fmt.Printf("데이터 : %v", article)
