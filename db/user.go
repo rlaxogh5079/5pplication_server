@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/json"
 	"fmt"
+
 	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -58,7 +59,7 @@ func InsertUser(userEmail string, userName string, userPassword string, userStor
 	var user User
 	user.Email = userEmail
 	user.Nickname = userName
-	user.Password, generatedErr = bcrypt.GenerateFromPassword([]byte(userPassword),bcrypt.DefaultCost)
+	user.Password, generatedErr = bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
 	user.StoreArticle = userStoreArticle
 
 	if checkErr(generatedErr) {
@@ -96,7 +97,7 @@ func SelectUser(userEmail string) (User, error) {
 
 	return user, detectedErr
 }
-/*
+
 func RemoveUser(userEmail string) (bool, error) {
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
@@ -105,6 +106,20 @@ func RemoveUser(userEmail string) (bool, error) {
 	}
 	defer db.Close()
 
+	result, deleteErr := db.Exec(fmt.Sprintf("DELETE FROM user WHERE email=\"%v\"", userEmail))
+	if deleteErr != nil {
+		detectedErr = deleteErr
+	}
 
+	count, affectErr := result.RowsAffected()
+	if affectErr != nil {
+		detectedErr = affectErr
+	}
+	if count == 0 {
+		fmt.Println("데이터가 삭제되지 않았습니다.")
+		return false, detectedErr
+	} else {
+		fmt.Printf("%v개의 데이터가 삭제되었습니다.\n", count)
+		return true, detectedErr
+	}
 }
-*/
