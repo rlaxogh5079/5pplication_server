@@ -11,6 +11,7 @@ func Api() *gin.Engine {
 	router.GET("/article/:long/:lat/", GETArticles)
 	router.POST("/login", POSTLogin)
 	router.POST("/signup", POSTSignUp)
+	router.POST("/del/user", POSTDelUser)
 
 	return router
 }

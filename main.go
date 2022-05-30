@@ -1,7 +1,7 @@
 package main
 
-import database "github.com/5pplication/Server/db"
+import server "github.com/5pplication/Server/server"
 
 func main() {
-	database.RemoveUser("test4@test.com")
+	server.Api().Run()
 }

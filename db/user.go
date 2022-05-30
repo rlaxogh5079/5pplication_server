@@ -119,7 +119,7 @@ func RemoveUser(userEmail string) (bool, error) {
 		fmt.Println("데이터가 삭제되지 않았습니다.")
 		return false, detectedErr
 	} else {
-		fmt.Printf("%v개의 데이터가 삭제되었습니다.\n", count)
+		fmt.Printf("%v가 삭제되었습니다.\n", userEmail)
 		return true, detectedErr
 	}
 }
