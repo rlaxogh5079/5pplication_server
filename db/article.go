@@ -41,7 +41,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 	}
 	if detectedErr == nil {
 		fmt.Println("데이터 반환 완료")
-	} 
+	}
 	return articles, detectedErr
 }
 
@@ -133,4 +133,30 @@ func SelectUserArticle(userEmail string) (map[string]interface{}, error) {
 	}
 
 	return userData, detectedErr
+}
+
+func RemoveArticle(atclNo string) (bool, error) {
+	var detectedErr error = nil
+	db, mysqlErr := ConnectDB()
+	if checkErr(mysqlErr) {
+		detectedErr = mysqlErr
+	}
+	defer db.Close()
+
+	result, deleteErr := db.Exec(fmt.Sprintf("DELETE FROM article WHERE atclno=\"%v\"", atclNo))
+	if deleteErr != nil {
+		detectedErr = deleteErr
+	}
+
+	count, affectErr := result.RowsAffected()
+	if affectErr != nil {
+		detectedErr = affectErr
+	}
+	if count == 0 {
+		fmt.Println("데이터가 삭제되지 않았습니다.")
+		return false, detectedErr
+	} else {
+		fmt.Printf("%v가 삭제되었습니다.\n", atclNo)
+		return true, detectedErr
+	}
 }
