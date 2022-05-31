@@ -11,20 +11,20 @@ import (
 func GETArticles(c *gin.Context) {
 	long, longErr := strconv.ParseFloat(c.Param("long"), 64)
 	if longErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H {
-			"message" : longErr,
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": longErr.Error(),
 		})
 	}
 	lat, latErr := strconv.ParseFloat(c.Param("lat"), 64)
 	if latErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H {
-			"message" : latErr,
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": latErr.Error(),
 		})
 	}
 	articleData, loadErr := database.LoadArticle(long, lat)
 	if loadErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H {
-			"message" : loadErr,
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": loadErr.Error(),
 		})
 	}
 	c.JSON(http.StatusOK, articleData)
@@ -33,8 +33,8 @@ func GETArticles(c *gin.Context) {
 func GETAllUsers(c *gin.Context) {
 	users, loadErr := database.LoadUsers()
 	if loadErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H {
-			"message" : loadErr,
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": loadErr.Error(),
 		})
 	}
 	c.JSON(http.StatusOK, users)

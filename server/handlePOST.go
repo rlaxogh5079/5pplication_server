@@ -59,21 +59,32 @@ func POSTDelUser(c *gin.Context) {
 	if loginErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   loginErr.Error(),
-			"message": "로그인할 수 없습니다",
+			"message": "cannotLogin",
 		})
 	}
 	if result == -1 {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "아이디가 존재하지 않습니다.",
+			"message": "dontExistId",
 		})
 	} else if result == 0 { // 비밀번호가 틀렸을경우
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "비밀번호가 틀렸습니다.",
+			"message": "wrongPassword",
 		})
 	} else {
-		database.RemoveUser(email)
-		c.JSON(http.StatusOK, gin.H{
-			"message": fmt.Sprintf("%v 계정이 성공적으로 제거되었습니다.", email),
-		})
+		flag, removeErr := database.RemoveUser(email)
+		if removeErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": removeErr.Error(),
+			})
+		}
+		if flag {
+			c.JSON(http.StatusOK, gin.H{
+				"message": fmt.Sprintf("%vEmailSuccessfullyRemoved", email),
+			})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": fmt.Sprintf("%vEmailDidntRemoved", email),
+			})
+		}
 	}
 }
