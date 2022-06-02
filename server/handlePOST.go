@@ -12,22 +12,27 @@ import (
 func POSTLogin(c *gin.Context) {
 	email := c.Request.Header["Email"][0]
 	fmt.Printf("%v님이 접속을 시도합니다.\n", email)
-	password := []byte(c.Request.Header["Password"][0])
+	password := c.Request.Header["Password"][0]
 	result, loginErr := login.CheckLogin(email, password)
+	if loginErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": loginErr.Error(),
+		})
+		fmt.Println(loginErr.Error())
+	}
 	if result == -1 {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error":   loginErr.Error(),
-			"message": "아이디가 존재하지 않습니다.",
+			"message": "noId",
 		})
-		fmt.Println("아이디가 존재하지 않습니다.")
+		fmt.Println("Id가 존재하지 않습니다.")
 	} else if result == 0 { // 비밀번호가 틀림
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "비밀번호가 틀렸습니다.",
+			"message": "wrongPassword",
 		})
 		fmt.Println("비밀번호가 틀렸습니다.")
 	} else { // 로그인 성공
 		c.JSON(http.StatusOK, gin.H{
-			"message": "환영합니다.",
+			"message": "welcome",
 		})
 		fmt.Println("환영합니다.")
 	}
@@ -36,55 +41,110 @@ func POSTLogin(c *gin.Context) {
 func POSTSignUp(c *gin.Context) {
 	email := c.Request.Header["Email"][0]
 	nickname := c.Request.Header["Nickname"][0]
-	password := (c.Request.Header["Password"][0])
+	password := c.Request.Header["Password"][0]
 	storeArticle := "{}"
 	insertErr := database.InsertUser(email, nickname, password, storeArticle)
 	if insertErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   insertErr.Error(),
-			"message": "해당 이메일은 이미 가입되었습니다.",
+			"error": insertErr.Error(),
 		})
+		fmt.Println(insertErr.Error())
+		return
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "회원가입 성공",
+			"message": "successSignup",
 		})
 		fmt.Printf("%v님이 회원가입 하였습니다.\n", email)
 	}
 }
 
-func POSTDelUser(c *gin.Context) {
+func POSTDeleteUser(c *gin.Context) {
 	email := c.Request.Header["Email"][0]
-	password := []byte(c.Request.Header["Password"][0])
+	password := c.Request.Header["Password"][0]
 	result, loginErr := login.CheckLogin(email, password)
 	if loginErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   loginErr.Error(),
-			"message": "cannotLogin",
+			"error": loginErr.Error(),
 		})
+		fmt.Println(loginErr.Error())
+		return
 	}
 	if result == -1 {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "dontExistId",
+			"message": "noId",
 		})
+		fmt.Println("Id가 존재하지 않습니다.")
 	} else if result == 0 { // 비밀번호가 틀렸을경우
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "wrongPassword",
 		})
+		fmt.Println("비밀번호가 틀렸습니다.")
 	} else {
 		flag, removeErr := database.RemoveUser(email)
 		if removeErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": removeErr.Error(),
 			})
+			fmt.Println(removeErr.Error())
+			return
 		}
 		if flag {
 			c.JSON(http.StatusOK, gin.H{
 				"message": fmt.Sprintf("%vEmailSuccessfullyRemoved", email),
 			})
+			fmt.Printf("%v가 성공적으로 제거되었습니다.\n", email)
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"message": fmt.Sprintf("%vEmailDidntRemoved", email),
 			})
+			fmt.Printf("%v가 제거되지 않았습니다.\n", email)
 		}
+	}
+}
+
+func POSTUpdatePassword(c *gin.Context) {
+	email := c.Request.Header["Email"][0]
+	password := c.Request.Header["Password"][0]
+	result, updateErr := database.UpdatePassword(email, password)
+	if updateErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": updateErr.Error(),
+		})
+		return
+	}
+	if result {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "successUpdate",
+		})
+		fmt.Println("성공적으로 업데이트 되었습니다.")
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "cantUpdate",
+		})
+		fmt.Println("업데이트 할 수 없습니다.")
+	}
+}
+
+func POSTUpdateNickname(c *gin.Context) {
+	email := c.Request.Header["Email"][0]
+	nickname := c.Request.Header["Nickname"][0]
+	result, updateErr := database.UpdateNickname(email, nickname)
+	if updateErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": updateErr.Error(),
+		})
+		fmt.Println(updateErr.Error())
+		return
+	}
+	if result {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "successUpdate",
+		})
+		fmt.Println("성공적으로 업데이트 되었습니다.")
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "cantUpdate",
+		})
+		fmt.Println("업데이트 할 수 없습니다.")
 	}
 }
