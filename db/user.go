@@ -47,7 +47,7 @@ func LoadUsers() ([]map[string]interface{}, error) {
 	return users, detectedErr
 }
 
-func InsertUser(userEmail string, userName string, userPassword string, userStoreArticle string) error {
+func InsertUser(userEmail string, nickname string, userPassword string, userStoreArticle string) error {
 	var detectedErr error = nil
 	var generatedErr error = nil
 	db, mysqlErr := ConnectDB()
@@ -58,7 +58,7 @@ func InsertUser(userEmail string, userName string, userPassword string, userStor
 
 	var user User
 	user.Email = userEmail
-	user.Nickname = userName
+	user.Nickname = nickname
 	user.Password, generatedErr = bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
 	user.StoreArticle = userStoreArticle
 
@@ -107,19 +107,60 @@ func RemoveUser(userEmail string) (bool, error) {
 	defer db.Close()
 
 	result, deleteErr := db.Exec(fmt.Sprintf("DELETE FROM user WHERE email=\"%v\"", userEmail))
-	if deleteErr != nil {
+	if checkErr(deleteErr) {
 		detectedErr = deleteErr
 	}
 
-	count, affectErr := result.RowsAffected()
-	if affectErr != nil {
+	flag, affectErr := isOne(result)
+	if checkErr(affectErr) {
 		detectedErr = affectErr
 	}
-	if count == 0 {
-		fmt.Println("데이터가 삭제되지 않았습니다.")
-		return false, detectedErr
-	} else {
-		fmt.Printf("%v가 삭제되었습니다.\n", userEmail)
-		return true, detectedErr
+	return flag, detectedErr
+}
+
+func UpdateNickname(userEmail string, nickname string) (bool, error) {
+	var detectedErr error = nil
+	db, mysqlErr := ConnectDB()
+	if checkErr(mysqlErr) {
+		detectedErr = mysqlErr
 	}
+	defer db.Close()
+
+	result, updateErr := db.Exec(fmt.Sprintf("UPDATE user SET nickname=\"%v\" WHERE email=\"%v\"", nickname, userEmail))
+
+	if checkErr(updateErr) {
+		detectedErr = updateErr
+	}
+
+	flag, affectErr := isOne(result)
+	if checkErr(affectErr) {
+		detectedErr = affectErr
+	}
+	return flag, detectedErr
+}
+
+func UpdatePassword(userEmail string, userPassword string) (bool, error) {
+	var detectedErr error = nil
+	db, mysqlErr := ConnectDB()
+	if checkErr(mysqlErr) {
+		detectedErr = mysqlErr
+	}
+	defer db.Close()
+
+	newPassword, generatedErr := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
+	if checkErr(generatedErr) {
+		detectedErr = generatedErr
+	}
+
+	result, updateErr := db.Exec(fmt.Sprintf("UPDATE user SET password=\"%v\" WHERE email=\"%v\"", string(newPassword), userEmail))
+
+	if checkErr(updateErr) {
+		detectedErr = updateErr
+	}
+
+	flag, affectErr := isOne(result)
+	if checkErr(affectErr) {
+		detectedErr = affectErr
+	}
+	return flag, detectedErr
 }

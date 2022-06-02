@@ -47,6 +47,15 @@ func checkErr(err error) bool {
 	return false
 }
 
+func isOne(result sql.Result) (bool, error) {
+	count, affectErr := result.RowsAffected()
+	if count == 1 {
+		return true, affectErr
+	} else {
+		return false, affectErr
+	}
+}
+
 func ConnectDB() (*sql.DB, error) {
 	db, mysqlErr := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4", Username, Password, Host, Port, Database))
 	if !checkErr(mysqlErr) {
