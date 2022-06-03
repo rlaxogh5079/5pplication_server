@@ -27,16 +27,16 @@ type UserWithoutPassword struct {
 }
 
 type Article struct {
-	AtclNo  string                 `json:"atclNo"`
-	Email   string                 `json:"email"`
-	Share   bool                   `json:"share"`
-	Long    float32                `json:"longitude"`
-	Lat     float32                `json:"latitude"`
-	Title   string                 `json:"title"`
-	Body    string                 `json:"body"`
-	Date    string                 `json:"date"`
-	Likecnt int                    `json:"likecnt"`
-	Tag     map[string]interface{} `json:"tag"`
+	AtclNo  string `json:"atclNo"`
+	Email   string `json:"email"`
+	Share   bool   `json:"share"`
+	Long    string `json:"longitude"`
+	Lat     string `json:"latitude"`
+	Title   string `json:"title"`
+	Body    string `json:"body"`
+	Date    string `json:"date"`
+	Likecnt int64  `json:"likecnt"`
+	Tag     string `json:"tag"`
 }
 
 func checkErr(err error) bool {

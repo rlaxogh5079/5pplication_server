@@ -45,7 +45,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 	return articles, detectedErr
 }
 
-func InsertArticle(atclNo string, email string, share bool, long float32, lat float32, title string, body string, date string, likecnt int, tag map[string]interface{}) error {
+func InsertArticle(atclNo string, email string, share bool, long string, lat string, title string, body string, likecnt int64, date string, tag string) error {
 	// 데이터베이스에 글 정보를 입력하는 함수
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
@@ -70,12 +70,14 @@ func InsertArticle(atclNo string, email string, share bool, long float32, lat fl
 	if checkErr(prepareErr) {
 		detectedErr = prepareErr
 	}
-	_, insertErr := statement.Exec(article.AtclNo, article.Email, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Date, article.Likecnt, article.Tag)
+	_, insertErr := statement.Exec(article.AtclNo, article.Email, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Likecnt, article.Date, article.Tag)
 	if checkErr(insertErr) {
-		fmt.Printf("(%s) 데이터가 이미 존재함\n", article.AtclNo)
 		detectedErr = insertErr
 	}
-	fmt.Println("데이터 삽입성공")
+
+	if detectedErr == nil {
+		fmt.Println("데이터 삽입성공")
+	}
 
 	return detectedErr
 }
