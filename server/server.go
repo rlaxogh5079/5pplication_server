@@ -7,7 +7,6 @@ import (
 func Api() *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/users", GETAllUsers)
 	router.GET("/article/:long/:lat/", GETArticles)
 	router.POST("/login", POSTLogin)
 	router.POST("/signup", POSTSignUp)

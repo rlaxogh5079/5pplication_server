@@ -29,13 +29,3 @@ func GETArticles(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, articleData)
 }
-
-func GETAllUsers(c *gin.Context) {
-	users, loadErr := database.LoadUsers()
-	if loadErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": loadErr.Error(),
-		})
-	}
-	c.JSON(http.StatusOK, users)
-}
