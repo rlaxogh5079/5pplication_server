@@ -90,12 +90,12 @@ func POSTDeleteUser(c *gin.Context) {
 		}
 		if flag {
 			c.JSON(http.StatusOK, gin.H{
-				"message": fmt.Sprintf("%vEmailSuccessfullyRemoved", email),
+				"message": "fsuccessDelete",
 			})
 			fmt.Printf("%v가 성공적으로 제거되었습니다.\n", email)
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": fmt.Sprintf("%vEmailDidntRemoved", email),
+				"message": "failedDelete",
 			})
 			fmt.Printf("%v가 제거되지 않았습니다.\n", email)
 		}

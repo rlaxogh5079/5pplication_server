@@ -66,3 +66,46 @@ func POSTInsertArticle(c *gin.Context) {
 	})
 	fmt.Println("성공적으로 글을 입력하였습니다.")
 }
+
+func POSTDeleteArticle(c *gin.Context) {
+	atclNo := c.Request.Header["Atclno"][0]
+	email := c.Request.Header["Email"][0]
+
+	article, loadErr := database.SelectArticle(atclNo)
+	fmt.Println(email, article.Email)
+	if loadErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": loadErr.Error(),
+		})
+		fmt.Println(loadErr.Error())
+		return
+	}
+
+	if article.Email == email {
+		flag, removeErr := database.RemoveArticle(atclNo)
+		if removeErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": removeErr.Error(),
+			})
+			fmt.Println(removeErr.Error())
+			return
+		}
+
+		if flag {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "successDelete",
+			})
+			fmt.Println("성공적으로 글을 제거하였습니다.")
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "failedDelete",
+			})
+			fmt.Println("글을 제거하지 못했습니다.")
+		}
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "emailDoesntMatch",
+		})
+		fmt.Println("이메일이 일치하지 않습니다.")
+	}
+}

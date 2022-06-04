@@ -82,7 +82,7 @@ func InsertArticle(atclNo string, email string, share bool, long string, lat str
 	return detectedErr
 }
 
-func SelectArticle(atclNo string) (map[string]interface{}, error) {
+func SelectArticle(atclNo string) (Article, error) {
 	// 해당 글번호를 가진 글을 불러옴
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
@@ -91,21 +91,13 @@ func SelectArticle(atclNo string) (map[string]interface{}, error) {
 	}
 	defer db.Close()
 
-	rows, dataErr := db.Query(fmt.Sprintf("SELECT * FROM article WHERE atclNo=\"%s\"", atclNo))
-	checkErr(dataErr)
-
 	var article Article
-	var articleData map[string]interface{}
 
-	for rows.Next() {
-		loadErr := rows.Scan(&article.AtclNo, &article.Email, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date, &article.Likecnt, &article.Tag)
-		checkErr(loadErr)
-
-		fmt.Printf("데이터 : %v", article)
-		articleByte, _ := json.Marshal(article)
-		json.Unmarshal(articleByte, &articleData)
+	queryErr := db.QueryRow(fmt.Sprintf("SELECT * FROM article WHERE atclNo=\"%v\"", atclNo)).Scan(&article.AtclNo, &article.Email, &article.Share, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Likecnt, &article.Date, &article.Tag)
+	if checkErr(queryErr) {
+		detectedErr = queryErr
 	}
-	return articleData, detectedErr
+	return article, detectedErr
 }
 
 func SelectUserArticle(userEmail string) (map[string]interface{}, error) {
