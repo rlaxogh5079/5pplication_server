@@ -64,3 +64,12 @@ func ConnectDB() (*sql.DB, error) {
 
 	return db, mysqlErr
 }
+
+func Pop(value string, array []string) (bool, []string) {
+	for p, v := range array {
+		if v == value {
+			return true, append(array[:p], array[p+1:]...)
+		}
+	}
+	return false, array
+}

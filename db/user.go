@@ -93,11 +93,9 @@ func SelectUser(userEmail string) (User, error) {
 	var user User
 
 	queryErr := db.QueryRow(fmt.Sprintf("SELECT * FROM user WHERE email=\"%v\"", userEmail)).Scan(&user.Email, &user.Nickname, &user.Password, &user.StoreArticle)
-
 	if checkErr(queryErr) {
 		detectedErr = queryErr
 	}
-
 	return user, detectedErr
 }
 
@@ -179,15 +177,11 @@ func UpdateStoreArticle(userEmail string, atclNo string) (bool, error) {
 	}
 	defer db.Close()
 
-	article, selectErr := SelectArticle(atclNo)
-	if checkErr(selectErr) {
-		detectedErr = selectErr
-	}
 	user, selectErr2 := SelectUser(userEmail)
 	if checkErr(selectErr2) {
 		detectedErr = selectErr2
 	}
-	fmt.Println(article)
+
 	storeArticle := user.StoreArticle
 	articleList := append(strings.Split(strings.Trim(storeArticle, "[]"), " "), atclNo)
 	storeArticle = fmt.Sprintf("%v", articleList)
@@ -204,4 +198,38 @@ func UpdateStoreArticle(userEmail string, atclNo string) (bool, error) {
 	}
 
 	return flag, detectedErr
+}
+
+func RemoveStoreArticle(userEmail string, atclNo string) (bool, error) {
+	var detectedErr error = nil
+	db, mysqlErr := ConnectDB()
+	if checkErr(mysqlErr) {
+		detectedErr = mysqlErr
+	}
+	defer db.Close()
+
+	user, selectErr2 := SelectUser(userEmail)
+	if checkErr(selectErr2) {
+		detectedErr = selectErr2
+	}
+
+	storeArticle := user.StoreArticle
+	flag, articleList := Pop(atclNo, strings.Split(strings.Trim(storeArticle, "[]"), " "))
+	if !flag {
+		return false, detectedErr
+	}
+	storeArticle = fmt.Sprintf("%v", articleList)
+
+	result, updateErr := db.Exec(fmt.Sprintf("UPDATE user SET storeArticle=\"%v\" WHERE email=\"%v\"", storeArticle, userEmail))
+	if checkErr(updateErr) {
+		detectedErr = updateErr
+		return false, detectedErr
+	}
+
+	flag2, affectErr := isOne(result)
+	if checkErr(affectErr) {
+		detectedErr = affectErr
+	}
+
+	return flag2, detectedErr
 }

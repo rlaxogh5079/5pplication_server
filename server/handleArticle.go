@@ -16,18 +16,21 @@ func GETArticles(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": longErr.Error(),
 		})
+		return
 	}
 	lat, latErr := strconv.ParseFloat(c.Param("lat"), 64)
 	if latErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": latErr.Error(),
 		})
+		return
 	}
 	articleData, loadErr := database.LoadArticle(long, lat)
 	if loadErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": loadErr.Error(),
 		})
+		return
 	}
 	c.JSON(http.StatusOK, articleData)
 }
@@ -109,17 +112,39 @@ func POSTDeleteArticle(c *gin.Context) {
 			fmt.Println(removeErr.Error())
 			return
 		}
-
 		if flag {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "successDelete",
-			})
-			fmt.Println("성공적으로 글을 제거하였습니다.")
+			user, selectErr2 := database.SelectUser(email)
+			if selectErr2 != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": selectErr2.Error(),
+				})
+				fmt.Println(selectErr2.Error())
+				return
+			}
+			flag2, removeErr2 := database.RemoveStoreArticle(user.Email, atclNo)
+			if removeErr2 != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": removeErr2.Error(),
+				})
+				fmt.Println(removeErr2.Error())
+				return
+			}
+			if flag2 {
+				c.JSON(http.StatusOK, gin.H{
+					"message": "successDelete",
+				})
+				fmt.Println("성공적으로 글을 제거하였습니다.")
+			} else {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"message": "failedDelete",
+				})
+				fmt.Println("글을 제거하지 못했습니다.")
+			}
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "failedDelete",
+				"message": "emailDoesntMatch",
 			})
-			fmt.Println("글을 제거하지 못했습니다.")
+			fmt.Println("이메일이 일치하지 않습니다.")
 		}
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{
