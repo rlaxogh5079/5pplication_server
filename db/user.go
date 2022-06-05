@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -47,7 +48,7 @@ func LoadUsers() ([]map[string]interface{}, error) {
 	return users, detectedErr
 }
 
-func InsertUser(userEmail string, nickname string, userPassword string, userStoreArticle string) error {
+func InsertUser(userEmail string, nickname string, userPassword string, userStoreArticle string) (bool, error) {
 	var detectedErr error = nil
 	var generatedErr error = nil
 	db, mysqlErr := ConnectDB()
@@ -65,17 +66,20 @@ func InsertUser(userEmail string, nickname string, userPassword string, userStor
 	if checkErr(generatedErr) {
 		detectedErr = generatedErr
 	}
-	statement, prepareErr := db.Prepare("INSERT INTO user VALUE (?, ?, ?, ?);")
-	if checkErr(prepareErr) {
-		detectedErr = prepareErr
+	result, execErr := db.Exec(fmt.Sprintf("INSERT INTO user VALUE (\"%v\", \"%v\", \"%v\", \"%v\");", user.Email, user.Nickname, string(user.Password), user.StoreArticle))
+	if checkErr(execErr) {
+		detectedErr = execErr
+		return false, detectedErr
 	}
-	_, insertErr := statement.Exec(user.Email, user.Nickname, user.Password, userStoreArticle)
-	if checkErr(insertErr) {
-		detectedErr = insertErr
+	count, affectErr := result.RowsAffected()
+	if checkErr(affectErr) {
+		detectedErr = affectErr
+	}
+	if count != 0 {
+		return true, detectedErr
 	} else {
-		fmt.Println("데이터 삽입성공")
+		return false, detectedErr
 	}
-	return detectedErr
 }
 
 func SelectUser(userEmail string) (User, error) {
@@ -108,6 +112,7 @@ func RemoveUser(userEmail string) (bool, error) {
 	result, deleteErr := db.Exec(fmt.Sprintf("DELETE FROM user WHERE email=\"%v\"", userEmail))
 	if checkErr(deleteErr) {
 		detectedErr = deleteErr
+		return false, detectedErr
 	}
 
 	flag, affectErr := isOne(result)
@@ -129,6 +134,7 @@ func UpdateNickname(userEmail string, nickname string) (bool, error) {
 
 	if checkErr(updateErr) {
 		detectedErr = updateErr
+		return false, detectedErr
 	}
 
 	flag, affectErr := isOne(result)
@@ -155,11 +161,47 @@ func UpdatePassword(userEmail string, userPassword string) (bool, error) {
 
 	if checkErr(updateErr) {
 		detectedErr = updateErr
+		return false, detectedErr
 	}
 
 	flag, affectErr := isOne(result)
 	if checkErr(affectErr) {
 		detectedErr = affectErr
 	}
+	return flag, detectedErr
+}
+
+func UpdateStoreArticle(userEmail string, atclNo string) (bool, error) {
+	var detectedErr error = nil
+	db, mysqlErr := ConnectDB()
+	if checkErr(mysqlErr) {
+		detectedErr = mysqlErr
+	}
+	defer db.Close()
+
+	article, selectErr := SelectArticle(atclNo)
+	if checkErr(selectErr) {
+		detectedErr = selectErr
+	}
+	user, selectErr2 := SelectUser(userEmail)
+	if checkErr(selectErr2) {
+		detectedErr = selectErr2
+	}
+	fmt.Println(article)
+	storeArticle := user.StoreArticle
+	articleList := append(strings.Split(strings.Trim(storeArticle, "[]"), " "), atclNo)
+	storeArticle = fmt.Sprintf("%v", articleList)
+
+	result, updateErr := db.Exec(fmt.Sprintf("UPDATE user SET storeArticle=\"%v\" WHERE email=\"%v\"", storeArticle, userEmail))
+	if checkErr(updateErr) {
+		detectedErr = updateErr
+		return false, detectedErr
+	}
+
+	flag, affectErr := isOne(result)
+	if checkErr(affectErr) {
+		detectedErr = affectErr
+	}
+
 	return flag, detectedErr
 }

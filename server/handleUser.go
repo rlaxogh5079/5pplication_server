@@ -43,18 +43,24 @@ func POSTSignUp(c *gin.Context) {
 	nickname := c.Request.Header["Nickname"][0]
 	password := c.Request.Header["Password"][0]
 	storeArticle := "{}"
-	insertErr := database.InsertUser(email, nickname, password, storeArticle)
+	flag, insertErr := database.InsertUser(email, nickname, password, storeArticle)
 	if insertErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": insertErr.Error(),
 		})
 		fmt.Println(insertErr.Error())
 		return
-	} else {
+	}
+	if flag {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "successSignup",
+			"message": "successInsert",
 		})
-		fmt.Printf("%v님이 회원가입 하였습니다.\n", email)
+		fmt.Println("회원가입을 성공했습니다.")
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "failedInsert",
+		})
+		fmt.Println("회원가입을 실패했습니다.")
 	}
 }
 

@@ -16,7 +16,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 	}
 	defer db.Close()
 
-	rows, dataErr := db.Query(fmt.Sprintf("SELECT atclNo, email, longitude, latitude, title, body, date FROM article WHERE ROUND(longitude,3)=%v and ROUND(latitude,3)=%v", long, lat))
+	rows, dataErr := db.Query(fmt.Sprintf("SELECT atclNo, email, longitude, latitude, title, body, date FROM article WHERE longitude=\"%v\" AND latitude=\"%v\"", long, lat))
 	if checkErr(dataErr) {
 		detectedErr = dataErr
 	} else {
@@ -24,11 +24,11 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 	}
 	defer rows.Close()
 
-	var article Article
-	var articleData map[string]interface{}
 	var articles []map[string]interface{}
 
 	for rows.Next() {
+		var article Article
+		var articleData map[string]interface{}
 		loadErr := rows.Scan(&article.AtclNo, &article.Email, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date)
 		if checkErr(loadErr) {
 			detectedErr = loadErr
@@ -36,7 +36,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 
 		articleByte, _ := json.Marshal(article)
 		json.Unmarshal(articleByte, &articleData)
-		fmt.Printf("데이터 : %v\n", article)
+		fmt.Printf("데이터 : %v\n", articleData)
 		articles = append(articles, articleData)
 	}
 	if detectedErr == nil {
@@ -45,7 +45,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 	return articles, detectedErr
 }
 
-func InsertArticle(atclNo string, email string, share bool, long string, lat string, title string, body string, likecnt int64, date string, tag string) error {
+func InsertArticle(atclNo string, email string, share bool, long string, lat string, title string, body string, likecnt int64, date string, tag string) (bool, error) {
 	// 데이터베이스에 글 정보를 입력하는 함수
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
@@ -70,16 +70,18 @@ func InsertArticle(atclNo string, email string, share bool, long string, lat str
 	if checkErr(prepareErr) {
 		detectedErr = prepareErr
 	}
-	_, insertErr := statement.Exec(article.AtclNo, article.Email, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Likecnt, article.Date, article.Tag)
+	result, insertErr := statement.Exec(article.AtclNo, article.Email, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Likecnt, article.Date, article.Tag)
 	if checkErr(insertErr) {
 		detectedErr = insertErr
+		return false, insertErr
 	}
 
-	if detectedErr == nil {
-		fmt.Println("데이터 삽입성공")
+	count, affectErr := result.RowsAffected()
+	if checkErr(affectErr) {
+		detectedErr = affectErr
 	}
 
-	return detectedErr
+	return bool(count != 0), detectedErr
 }
 
 func SelectArticle(atclNo string) (Article, error) {

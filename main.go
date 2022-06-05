@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	database.UpdatePassword("test1@test.com", "test2")
+	database.UpdateStoreArticle("test1@test.com", "[1234567 1234568]", "1234569")
 }
 */
 import (

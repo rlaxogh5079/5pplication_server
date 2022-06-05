@@ -43,7 +43,7 @@ func POSTInsertArticle(c *gin.Context) {
 	date := string(time.Now().UTC().Format("2006-01-02 15:04:05"))
 	tag := c.Request.Header["Tag"][0]
 
-	insertErr := database.InsertArticle(atclNo, email, share, long, lat, title, body, 0, date, tag)
+	flag, insertErr := database.InsertArticle(atclNo, email, share, long, lat, title, body, 0, date, tag)
 
 	if parseBoolErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -52,7 +52,6 @@ func POSTInsertArticle(c *gin.Context) {
 		fmt.Println(parseBoolErr.Error())
 		return
 	}
-
 	if insertErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": insertErr.Error(),
@@ -60,11 +59,31 @@ func POSTInsertArticle(c *gin.Context) {
 		fmt.Println(insertErr.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "successInsertArticle",
-	})
-	fmt.Println("성공적으로 글을 입력하였습니다.")
+	if flag {
+		flag2, updateErr := database.UpdateStoreArticle(email, atclNo)
+		if updateErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": updateErr.Error(),
+			})
+			fmt.Println(updateErr.Error())
+		}
+		if flag2 {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "successInsertArticle",
+			})
+			fmt.Println("성공적으로 글을 입력하였습니다.")
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "failedInsertArticle",
+			})
+			fmt.Println("글을 입력하는데 실패하였습니다.")
+		}
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "failedInsertArticle",
+		})
+		fmt.Println("글을 입력하는데 실패하였습니다.")
+	}
 }
 
 func POSTDeleteArticle(c *gin.Context) {
