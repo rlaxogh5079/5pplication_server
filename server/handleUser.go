@@ -14,6 +14,12 @@ func POSTLogin(c *gin.Context) {
 	fmt.Printf("%v님이 접속을 시도합니다.\n", email)
 	password := c.Request.Header["Password"][0]
 	result, loginErr := login.CheckLogin(email, password)
+	if loginErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("err : %v", loginErr.Error()),
+		})
+		fmt.Println(loginErr.Error())
+	}
 	if result == -1 {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "noId",
@@ -30,11 +36,6 @@ func POSTLogin(c *gin.Context) {
 		})
 		fmt.Println("환영합니다.")
 	}
-
-	if loginErr != nil {
-		fmt.Println(loginErr.Error())
-		return
-	}
 }
 
 func POSTSignUp(c *gin.Context) {
@@ -45,7 +46,7 @@ func POSTSignUp(c *gin.Context) {
 	flag, insertErr := database.InsertUser(email, nickname, password, storeArticle)
 	if insertErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": insertErr.Error(),
+			"message": fmt.Sprintf("err : %v", insertErr.Error()),
 		})
 		fmt.Println(insertErr.Error())
 		return
@@ -69,7 +70,7 @@ func POSTDeleteUser(c *gin.Context) {
 	result, loginErr := login.CheckLogin(email, password)
 	if loginErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": loginErr.Error(),
+			"message": fmt.Sprintf("err : %v", loginErr.Error()),
 		})
 		fmt.Println(loginErr.Error())
 		return
@@ -88,7 +89,7 @@ func POSTDeleteUser(c *gin.Context) {
 		flag, removeErr := database.RemoveUser(email)
 		if removeErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": removeErr.Error(),
+				"message": fmt.Sprintf("err : %v", removeErr.Error()),
 			})
 			fmt.Println(removeErr.Error())
 			return
@@ -113,7 +114,7 @@ func POSTUpdatePassword(c *gin.Context) {
 	result, updateErr := database.UpdatePassword(email, password)
 	if updateErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": updateErr.Error(),
+			"message": fmt.Sprintf("err : %v", updateErr.Error()),
 		})
 		return
 	}
@@ -136,7 +137,7 @@ func POSTUpdateNickname(c *gin.Context) {
 	result, updateErr := database.UpdateNickname(email, nickname)
 	if updateErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": updateErr.Error(),
+			"message": fmt.Sprintf("err : %v", updateErr.Error()),
 		})
 		fmt.Println(updateErr.Error())
 		return

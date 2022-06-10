@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Host     = "localhost"
+	Host     = "132.226.16.134"
 	Database = "5pplicationDB"
 	Username = "5pplication"
 	Password = "5pplication"
