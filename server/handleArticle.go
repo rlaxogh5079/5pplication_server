@@ -44,9 +44,10 @@ func POSTInsertArticle(c *gin.Context) {
 	title := c.Request.Header["Title"][0]
 	body := c.Request.Header["Body"][0]
 	date := string(time.Now().UTC().Format("2006-01-02 15:04:05"))
+	images := c.Request.Header["Images"][0]
 	tag := c.Request.Header["Tag"][0]
 
-	flag, insertErr := database.InsertArticle(atclNo, email, share, long, lat, title, body, 0, date, tag)
+	flag, insertErr := database.InsertArticle(atclNo, email, share, long, lat, title, body, 0, date, images, tag)
 
 	if parseBoolErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

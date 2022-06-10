@@ -45,7 +45,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 	return articles, detectedErr
 }
 
-func InsertArticle(atclNo string, email string, share bool, long string, lat string, title string, body string, likecnt int64, date string, tag string) (bool, error) {
+func InsertArticle(atclNo string, email string, share bool, long string, lat string, title string, body string, likecnt int64, date string, images string, tag string) (bool, error) {
 	// 데이터베이스에 글 정보를 입력하는 함수
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
@@ -63,14 +63,15 @@ func InsertArticle(atclNo string, email string, share bool, long string, lat str
 	article.Title = title
 	article.Body = body
 	article.Date = date
+	article.Images = images
 	article.Likecnt = likecnt
 	article.Tag = tag
 
-	statement, prepareErr := db.Prepare("INSERT INTO article VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
+	statement, prepareErr := db.Prepare("INSERT INTO article VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
 	if checkErr(prepareErr) {
 		detectedErr = prepareErr
 	}
-	result, insertErr := statement.Exec(article.AtclNo, article.Email, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Likecnt, article.Date, article.Tag)
+	result, insertErr := statement.Exec(article.AtclNo, article.Email, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Likecnt, article.Date, article.Images, article.Tag)
 	if checkErr(insertErr) {
 		detectedErr = insertErr
 		return false, insertErr

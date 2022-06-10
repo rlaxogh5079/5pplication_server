@@ -35,6 +35,7 @@ type Article struct {
 	Title   string `json:"title"`
 	Body    string `json:"body"`
 	Date    string `json:"date"`
+	Images  string `json:"images"`
 	Likecnt int64  `json:"likecnt"`
 	Tag     string `json:"tag"`
 }
