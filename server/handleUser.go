@@ -19,6 +19,7 @@ func POSTLogin(c *gin.Context) {
 			"message": fmt.Sprintf("err : %v", loginErr.Error()),
 		})
 		fmt.Println(loginErr.Error())
+		return
 	}
 	if result == -1 {
 		c.JSON(http.StatusUnauthorized, gin.H{
