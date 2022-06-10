@@ -13,7 +13,7 @@ func Api() *gin.Engine {
 	router.POST("/user/update/password", POSTUpdatePassword)
 	router.POST("/user/update/nickname", POSTUpdateNickname)
 
-	router.GET("/article/:long/:lat/", GETArticles)
+	router.GET("/article", GETArticles)
 	router.POST("/article/insert", POSTInsertArticle)
 	router.POST("/article/delete", POSTDeleteArticle)
 

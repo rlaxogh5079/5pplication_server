@@ -11,28 +11,53 @@ import (
 )
 
 func GETArticles(c *gin.Context) {
-	long, longErr := strconv.ParseFloat(c.Param("long"), 64)
-	if longErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": longErr.Error(),
+	atclNo := c.Request.URL.Query()["atclNo"]
+	long := c.Request.URL.Query()["long"]
+	lat := c.Request.URL.Query()["lat"]
+
+	if atclNo != nil {
+		article, loadErr := database.SelectArticle(atclNo[0])
+		if loadErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": loadErr.Error(),
+			})
+			fmt.Println(loadErr.Error())
+			return
+		} else {
+			c.JSON(http.StatusOK, article)
+		}
+	} else if long != nil && lat != nil {
+		long2, longConvErr := strconv.ParseFloat(long[0], 64)
+		if longConvErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": longConvErr.Error(),
+			})
+			fmt.Println(longConvErr.Error())
+			return
+		}
+		lat2, latConvErr := strconv.ParseFloat(lat[0], 64)
+		if latConvErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": latConvErr.Error(),
+			})
+			fmt.Println(latConvErr.Error())
+			return
+		}
+		articles, loadErr := database.LoadArticle(long2, lat2)
+		if loadErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": loadErr.Error(),
+			})
+			fmt.Println(loadErr.Error())
+			return
+		} else {
+			c.JSON(http.StatusOK, articles)
+		}
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "unauthorized",
 		})
-		return
 	}
-	lat, latErr := strconv.ParseFloat(c.Param("lat"), 64)
-	if latErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": latErr.Error(),
-		})
-		return
-	}
-	articleData, loadErr := database.LoadArticle(long, lat)
-	if loadErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": loadErr.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, articleData)
 }
 
 func POSTInsertArticle(c *gin.Context) {
