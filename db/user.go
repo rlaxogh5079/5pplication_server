@@ -92,16 +92,10 @@ func SelectUser(userEmail string) (User, error) {
 
 	var user User
 
-	rows, dataErr := db.Query(fmt.Sprintf("SELECT *  FROM user WHERE email=\"%v\"", userEmail))
-	fmt.Println(dataErr)
-	if checkErr(dataErr) {
-		detectedErr = dataErr
-	}
-	for rows.Next() {
-		loadErr := rows.Scan(&user.Email, &user.Password, &user.Nickname, &user.StoreArticle)
-		if checkErr(loadErr) {
-			detectedErr = loadErr
-		}
+	queryErr := db.QueryRow(fmt.Sprintf("SELECT * FROM user WHERE email=\"%v\"", userEmail)).Scan(&user.Email, &user.Nickname, &user.Password, &user.StoreArticle)
+	fmt.Println(queryErr)
+	if checkErr(queryErr) {
+		detectedErr = queryErr
 	}
 	fmt.Println(user)
 	return user, detectedErr
