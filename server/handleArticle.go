@@ -19,7 +19,7 @@ func GETArticles(c *gin.Context) {
 		article, loadErr := database.SelectArticle(atclNo[0])
 		if loadErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": loadErr.Error(),
+				"message": fmt.Sprintf("err : %v", loadErr.Error()),
 			})
 			fmt.Println(loadErr.Error())
 			return
@@ -30,7 +30,7 @@ func GETArticles(c *gin.Context) {
 		long2, longConvErr := strconv.ParseFloat(long[0], 64)
 		if longConvErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": longConvErr.Error(),
+				"message": fmt.Sprintf("err : %v", longConvErr.Error()),
 			})
 			fmt.Println(longConvErr.Error())
 			return
@@ -38,7 +38,7 @@ func GETArticles(c *gin.Context) {
 		lat2, latConvErr := strconv.ParseFloat(lat[0], 64)
 		if latConvErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": latConvErr.Error(),
+				"message": fmt.Sprintf("err : %v", latConvErr.Error()),
 			})
 			fmt.Println(latConvErr.Error())
 			return
@@ -46,7 +46,7 @@ func GETArticles(c *gin.Context) {
 		articles, loadErr := database.LoadArticle(long2, lat2)
 		if loadErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": loadErr.Error(),
+				"message": fmt.Sprintf("err : %v", loadErr.Error()),
 			})
 			fmt.Println(loadErr.Error())
 			return
@@ -55,7 +55,7 @@ func GETArticles(c *gin.Context) {
 		}
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized",
+			"message": "err : unauthorized",
 		})
 	}
 }
@@ -76,14 +76,14 @@ func POSTInsertArticle(c *gin.Context) {
 
 	if parseBoolErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": parseBoolErr.Error(),
+			"message": fmt.Sprintf("err : %v", parseBoolErr.Error()),
 		})
 		fmt.Println(parseBoolErr.Error())
 		return
 	}
 	if insertErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": insertErr.Error(),
+			"message": fmt.Sprintf("err : %v", insertErr.Error()),
 		})
 		fmt.Println(insertErr.Error())
 		return
@@ -92,7 +92,7 @@ func POSTInsertArticle(c *gin.Context) {
 		flag2, updateErr := database.UpdateStoreArticle(email, atclNo)
 		if updateErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": updateErr.Error(),
+				"message": fmt.Sprintf("err : %v", updateErr.Error()),
 			})
 			fmt.Println(updateErr.Error())
 		}
@@ -123,7 +123,7 @@ func POSTDeleteArticle(c *gin.Context) {
 	fmt.Println(email, article.Email)
 	if loadErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": loadErr.Error(),
+			"message": fmt.Sprintf("err : %v", loadErr.Error()),
 		})
 		fmt.Println(loadErr.Error())
 		return
@@ -133,7 +133,7 @@ func POSTDeleteArticle(c *gin.Context) {
 		flag, removeErr := database.RemoveArticle(atclNo)
 		if removeErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": removeErr.Error(),
+				"message": fmt.Sprintf("err : %v", removeErr.Error()),
 			})
 			fmt.Println(removeErr.Error())
 			return
@@ -142,7 +142,7 @@ func POSTDeleteArticle(c *gin.Context) {
 			user, selectErr2 := database.SelectUser(email)
 			if selectErr2 != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"error": selectErr2.Error(),
+					"message": fmt.Sprintf("err : %v", selectErr2.Error()),
 				})
 				fmt.Println(selectErr2.Error())
 				return
@@ -150,7 +150,7 @@ func POSTDeleteArticle(c *gin.Context) {
 			flag2, removeErr2 := database.RemoveStoreArticle(user.Email, atclNo)
 			if removeErr2 != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"error": removeErr2.Error(),
+					"message": fmt.Sprintf("err : %v", removeErr2.Error()),
 				})
 				fmt.Println(removeErr2.Error())
 				return
