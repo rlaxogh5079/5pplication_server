@@ -14,13 +14,6 @@ func POSTLogin(c *gin.Context) {
 	fmt.Printf("%v님이 접속을 시도합니다.\n", email)
 	password := c.Request.Header["Password"][0]
 	result, loginErr := login.CheckLogin(email, password)
-	if loginErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": loginErr.Error(),
-		})
-		fmt.Println(loginErr.Error())
-		return
-	}
 	if result == -1 {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "noId",
@@ -36,6 +29,11 @@ func POSTLogin(c *gin.Context) {
 			"message": "welcome",
 		})
 		fmt.Println("환영합니다.")
+	}
+
+	if loginErr != nil {
+		fmt.Println(loginErr.Error())
+		return
 	}
 }
 
