@@ -3,10 +3,11 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"os"
 )
 
 const (
-	Host     = "132.226.16.134"
+	Host     = "localhost"
 	Database = "5pplicationDB"
 	Username = "5pplication"
 	Password = "5pplication"
@@ -58,7 +59,13 @@ func isOne(result sql.Result) (bool, error) {
 }
 
 func ConnectDB() (*sql.DB, error) {
-	db, mysqlErr := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4", Username, Password, Host, Port, Database))
+	realHost := ""
+	if _, err := os.Stat("RUNNING_ON_SERVER"); err == nil {
+		realHost = "localhost"
+	} else {
+		realHost = Host
+	}
+	db, mysqlErr := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4", Username, Password, realHost, Port, Database))
 	if !checkErr(mysqlErr) {
 		fmt.Println("데이터베이스 연결 성공")
 	}
