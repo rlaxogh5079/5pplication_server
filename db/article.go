@@ -45,7 +45,7 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 	return articles, detectedErr
 }
 
-func InsertArticle(atclNo string, email string, share bool, long string, lat string, title string, body string, likecnt int64, date string, imagesStr string, tagStr string) (bool, error) {
+func InsertArticle(atclNo string, email string, share bool, long string, lat string, title string, body string, likecnt int64, date string, image string, tag string) (bool, error) {
 	// 데이터베이스에 글 정보를 입력하는 함수
 	var detectedErr error = nil
 	db, mysqlErr := ConnectDB()
@@ -53,15 +53,6 @@ func InsertArticle(atclNo string, email string, share bool, long string, lat str
 		detectedErr = mysqlErr
 	}
 	defer db.Close()
-
-	var imageData map[string]interface{}
-	var tagData map[string]interface{}
-
-	images, _ := json.Marshal(imagesStr)
-	json.Unmarshal(images, &imageData)
-
-	tags, _ := json.Marshal(tagStr)
-	json.Unmarshal(tags, &tagData)
 
 	var article Article
 	article.AtclNo = atclNo
@@ -72,9 +63,9 @@ func InsertArticle(atclNo string, email string, share bool, long string, lat str
 	article.Title = title
 	article.Body = body
 	article.Date = date
-	article.Images = imageData
+	article.Images = image
 	article.Likecnt = likecnt
-	article.Tag = tagData
+	article.Tag = tag
 
 	statement, prepareErr := db.Prepare("INSERT INTO article VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
 	if checkErr(prepareErr) {
