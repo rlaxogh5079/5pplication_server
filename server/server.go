@@ -17,5 +17,7 @@ func Api() *gin.Engine {
 	router.POST("/article/insert", POSTInsertArticle)
 	router.POST("/article/delete", POSTDeleteArticle)
 
+	router.GET("/image", GETImage)
+
 	return router
 }
