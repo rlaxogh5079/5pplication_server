@@ -18,5 +18,5 @@ import (
 // @contact.email rlaxogh507906@gmail.com
 
 func main() {
-	server.Api().Run("localhost:8080")
+	server.Api().Run()
 }
