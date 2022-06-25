@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -10,13 +11,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func LoadUsers() ([]map[string]interface{}, error) {
+func LoadUsers(db *sql.DB) ([]map[string]interface{}, error) {
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	rows, dataErr := db.Query("SELECT email, nickname, storeArticle FROM user")
 	if checkErr(dataErr) {
@@ -48,14 +44,9 @@ func LoadUsers() ([]map[string]interface{}, error) {
 	return users, detectedErr
 }
 
-func InsertUser(userEmail string, nickname string, userPassword string, userStoreArticle string) (bool, error) {
+func InsertUser(db *sql.DB, userEmail string, nickname string, userPassword string, userStoreArticle string) (bool, error) {
 	var detectedErr error = nil
 	var generatedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	var user User
 	user.Email = userEmail
@@ -82,13 +73,8 @@ func InsertUser(userEmail string, nickname string, userPassword string, userStor
 	}
 }
 
-func SelectUser(userEmail string) (User, error) {
+func SelectUser(db *sql.DB, userEmail string) (User, error) {
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	var user User
 
@@ -101,13 +87,8 @@ func SelectUser(userEmail string) (User, error) {
 	return user, detectedErr
 }
 
-func RemoveUser(userEmail string) (bool, error) {
+func RemoveUser(db *sql.DB, userEmail string) (bool, error) {
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	result, deleteErr := db.Exec(fmt.Sprintf("DELETE FROM user WHERE email=\"%v\"", userEmail))
 	if checkErr(deleteErr) {
@@ -122,13 +103,8 @@ func RemoveUser(userEmail string) (bool, error) {
 	return flag, detectedErr
 }
 
-func UpdateNickname(userEmail string, nickname string) (bool, error) {
+func UpdateNickname(db *sql.DB, userEmail string, nickname string) (bool, error) {
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	result, updateErr := db.Exec(fmt.Sprintf("UPDATE user SET nickname=\"%v\" WHERE email=\"%v\"", nickname, userEmail))
 
@@ -144,13 +120,8 @@ func UpdateNickname(userEmail string, nickname string) (bool, error) {
 	return flag, detectedErr
 }
 
-func UpdatePassword(userEmail string, userPassword string) (bool, error) {
+func UpdatePassword(db *sql.DB, userEmail string, userPassword string) (bool, error) {
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	newPassword, generatedErr := bcrypt.GenerateFromPassword([]byte(userPassword), bcrypt.DefaultCost)
 	if checkErr(generatedErr) {
@@ -171,15 +142,10 @@ func UpdatePassword(userEmail string, userPassword string) (bool, error) {
 	return flag, detectedErr
 }
 
-func UpdateStoreArticle(userEmail string, atclNo string) (bool, error) {
+func UpdateStoreArticle(db *sql.DB, userEmail string, atclNo string) (bool, error) {
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
-	user, selectErr2 := SelectUser(userEmail)
+	user, selectErr2 := SelectUser(db, userEmail)
 	if checkErr(selectErr2) {
 		detectedErr = selectErr2
 	}
@@ -207,15 +173,10 @@ func UpdateStoreArticle(userEmail string, atclNo string) (bool, error) {
 	return flag, detectedErr
 }
 
-func RemoveStoreArticle(userEmail string, atclNo string) (bool, error) {
+func RemoveStoreArticle(db *sql.DB, userEmail string, atclNo string) (bool, error) {
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
-	user, selectErr2 := SelectUser(userEmail)
+	user, selectErr2 := SelectUser(db, userEmail)
 	if checkErr(selectErr2) {
 		detectedErr = selectErr2
 	}

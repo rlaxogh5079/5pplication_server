@@ -1,20 +1,16 @@
 package database
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
+func LoadArticle(db *sql.DB, long float64, lat float64) ([]map[string]interface{}, error) {
 	// 데이터베이스로 부터 해당 좌표에 있는 모든 글을 불러오는 함수
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	rows, dataErr := db.Query(fmt.Sprintf("SELECT atclNo, email, longitude, latitude, title, body, date FROM article WHERE longitude=\"%v\" AND latitude=\"%v\"", long, lat))
 	if checkErr(dataErr) {
@@ -45,33 +41,13 @@ func LoadArticle(long float64, lat float64) ([]map[string]interface{}, error) {
 	return articles, detectedErr
 }
 
-func InsertArticle(atclNo string, email string, share bool, long string, lat string, title string, body string, likecnt int64, date string, image string, tag string) (bool, error) {
+func InsertArticle(db *sql.DB, atclNo string, email string, share bool, long string, lat string, title string, body string, likecnt int64, date string, image string, tag string) (bool, error) {
 	// 데이터베이스에 글 정보를 입력하는 함수
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
-	var article Article
-	article.AtclNo = atclNo
-	article.Email = email
-	article.Share = share
-	article.Long = long
-	article.Lat = lat
-	article.Title = title
-	article.Body = body
-	article.Date = date
-	article.Images = image
-	article.Likecnt = likecnt
-	article.Tag = tag
+	var article = &Article{atclNo, email, share, long, lat, title, body, date, image, likecnt, tag}
 
-	statement, prepareErr := db.Prepare("INSERT INTO article VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
-	if checkErr(prepareErr) {
-		detectedErr = prepareErr
-	}
-	result, insertErr := statement.Exec(article.AtclNo, article.Email, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Likecnt, article.Date, article.Images, article.Tag)
+	result, insertErr := db.Exec(fmt.Sprintf("INSERT INTO article VALUE (%v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v);", article.AtclNo, article.Email, article.Share, article.Long, article.Lat, article.Title, article.Body, article.Likecnt, article.Date, article.Images, article.Tag))
 	if checkErr(insertErr) {
 		detectedErr = insertErr
 		return false, insertErr
@@ -85,31 +61,21 @@ func InsertArticle(atclNo string, email string, share bool, long string, lat str
 	return bool(count != 0), detectedErr
 }
 
-func SelectArticle(atclNo string) (Article, error) {
+func SelectArticle(db *sql.DB, atclNo string) (Article, error) {
 	// 해당 글번호를 가진 글을 불러옴
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	var article Article
 
-	queryErr := db.QueryRow(fmt.Sprintf("SELECT * FROM article WHERE atclNo=\"%v\"", atclNo)).Scan(&article.AtclNo, &article.Email, &article.Share, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Likecnt, &article.Date, &article.Tag)
+	queryErr := db.QueryRow(fmt.Sprintf("SELECT * FROM article WHERE atclNo=\"%v\"", atclNo)).Scan(&article.AtclNo, &article.Email, &article.Share, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Likecnt, &article.Date, &article.Images, &article.Tag)
 	if checkErr(queryErr) {
 		detectedErr = queryErr
 	}
 	return article, detectedErr
 }
 
-func SelectUserArticle(userEmail string) (map[string]interface{}, error) {
+func SelectUserArticle(db *sql.DB, userEmail string) (map[string]interface{}, error) {
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	rows, dataErr := db.Query(fmt.Sprintf("SELECT * FROM article WHERE email=\"%s\"", userEmail)) // userEmail이 작성한 글의 내용을 전부 조회
 	if checkErr(dataErr) {
@@ -132,13 +98,8 @@ func SelectUserArticle(userEmail string) (map[string]interface{}, error) {
 	return userData, detectedErr
 }
 
-func RemoveArticle(atclNo string) (bool, error) {
+func RemoveArticle(db *sql.DB, atclNo string) (bool, error) {
 	var detectedErr error = nil
-	db, mysqlErr := ConnectDB()
-	if checkErr(mysqlErr) {
-		detectedErr = mysqlErr
-	}
-	defer db.Close()
 
 	result, deleteErr := db.Exec(fmt.Sprintf("DELETE FROM article WHERE atclno=\"%v\"", atclNo))
 	if deleteErr != nil {

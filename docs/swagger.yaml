@@ -1,0 +1,268 @@
+definitions:
+  database.Article:
+    properties:
+      atclNo:
+        type: string
+      body:
+        type: string
+      date:
+        type: string
+      email:
+        type: string
+      images:
+        type: string
+      latitude:
+        type: string
+      likecnt:
+        type: integer
+      longitude:
+        type: string
+      share:
+        type: boolean
+      tag:
+        type: string
+      title:
+        type: string
+    type: object
+  database.User:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        items:
+          type: integer
+        type: array
+      storeArticle:
+        type: string
+    type: object
+info:
+  contact:
+    email: rlaxogh507906@gmail.com
+  termsOfService: http://swagger.io/terms/
+paths:
+  /article/delete:
+    post:
+      operationId: delete-article
+      parameters:
+      - description: Atclno
+        in: header
+        name: Atclno
+        required: true
+        type: string
+      - description: Email
+        in: header
+        name: Email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message" : "some-message'
+          schema:
+            type: string
+      summary: delete article in some atclno and email
+      tags:
+      - article
+  /article/get:
+    get:
+      operationId: get-articles
+      parameters:
+      - description: atclNo
+        in: query
+        name: atclNo
+        type: string
+      - description: long
+        in: query
+        name: long
+        type: string
+      - description: lat
+        in: query
+        name: lat
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/database.Article'
+      summary: get all articles in same long and lat
+      tags:
+      - article
+  /article/insert:
+    post:
+      operationId: insert-article
+      parameters:
+      - description: article
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/database.Article'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message" : "some-message'
+          schema:
+            type: string
+      summary: Insert article in some database.Article
+      tags:
+      - article
+  /image:
+    get:
+      operationId: load-image
+      parameters:
+      - description: imageNo
+        in: query
+        name: imageNo
+        required: true
+        type: string
+      produces:
+      - image/png
+      responses:
+        "200":
+          description: 'message" : "some-message'
+          schema:
+            type: string
+      summary: get Image in some imageNo
+      tags:
+      - image
+  /image/upload:
+    get:
+      operationId: upload-image
+      parameters:
+      - description: imageNo
+        in: formData
+        name: imageNo
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message" : "some-message'
+          schema:
+            type: string
+      summary: insert Image in some imageNo
+      tags:
+      - image
+  /login:
+    post:
+      operationId: login
+      parameters:
+      - description: Email
+        in: header
+        name: Email
+        required: true
+        type: string
+      - description: Password
+        in: header
+        name: Password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message" : "some-message'
+          schema:
+            type: string
+      summary: login in same email and hashed_password
+      tags:
+      - user
+  /signup:
+    post:
+      operationId: signup
+      parameters:
+      - description: user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/database.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message" : "some-message'
+          schema:
+            type: string
+      summary: signup in some database.User
+      tags:
+      - user
+  /user/delete:
+    post:
+      operationId: delete_user
+      parameters:
+      - description: Email
+        in: header
+        name: Email
+        required: true
+        type: string
+      - description: Password
+        in: header
+        name: Password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message" : "some-message'
+          schema:
+            type: string
+      summary: delete user in some email and hashed_password
+      tags:
+      - user
+  /user/update/nickname:
+    post:
+      operationId: update_user_nickname
+      parameters:
+      - description: Email
+        in: header
+        name: Email
+        required: true
+        type: string
+      - description: Nickname
+        in: header
+        name: Nickname
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message" : "some-message'
+          schema:
+            type: string
+      summary: update user password in some email and nickname
+      tags:
+      - user
+  /user/update/password:
+    post:
+      operationId: update_user_password
+      parameters:
+      - description: Email
+        in: header
+        name: Email
+        required: true
+        type: string
+      - description: Password
+        in: header
+        name: Password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message" : "some-message'
+          schema:
+            type: string
+      summary: update user password in some email and hashed_password
+      tags:
+      - user
+swagger: "2.0"

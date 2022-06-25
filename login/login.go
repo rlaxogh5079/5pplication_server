@@ -1,14 +1,15 @@
 package login
 
 import (
+	"database/sql"
 	"fmt"
 
 	database "github.com/5pplication/Server/db"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func CheckLogin(userEmail string, userPassword string) (int, error) { // 로그인 성공 -> 1, 로그인 실패 -> 0, 아이디 존재 X -> -1
-	user, selectErr := database.SelectUser(userEmail)
+func CheckLogin(db *sql.DB, userEmail string, userPassword string) (int, error) { // 로그인 성공 -> 1, 로그인 실패 -> 0, 아이디 존재 X -> -1
+	user, selectErr := database.SelectUser(db, userEmail)
 	if selectErr != nil {
 		fmt.Println(selectErr.Error())
 	}
