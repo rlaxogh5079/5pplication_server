@@ -27,7 +27,7 @@ func GETImage(c *gin.Context) {
 		fmt.Println("잘못된 접근입니다.")
 		return
 	}
-	img, openErr := os.Open(fmt.Sprintf("images/%v.png", imageNo[0]))
+	img, openErr := os.Open(fmt.Sprintf("/images/%v.png", imageNo[0]))
 	if openErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "err : imageNotExist",
@@ -46,9 +46,9 @@ func GETImage(c *gin.Context) {
 // @Tags image
 // @name upload-image
 // @Success 200 {object} string "message" : "some-message"
-// @Router /image/upload [get]
-// @Param imageNo formData file image "imageNo"
-func GETImageUpload(c *gin.Context) {
+// @Router /image/upload [post]
+// @Param imageNo formData file true "imageNo"
+func POSTImageUpload(c *gin.Context) {
 	// Single file
 	image, loadErr := c.FormFile("imageNo")
 	if loadErr != nil {
@@ -58,14 +58,14 @@ func GETImageUpload(c *gin.Context) {
 		fmt.Println("이미지가 존재하지 않습니다.")
 		return
 	}
-	if _, err := os.Stat(fmt.Sprintf("./images/%v", image.Filename)); err == nil {
+	if _, err := os.Stat(fmt.Sprintf("/images/%v", image.Filename)); err == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "err : imageAlreadyExist",
 		})
 		fmt.Println("이미지가 이미 존재합니다.")
 		return
 	}
-	c.SaveUploadedFile(image, filepath.Join("./images", image.Filename))
+	c.SaveUploadedFile(image, filepath.Join("/images", image.Filename))
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "imageSuccessfullyUpload",

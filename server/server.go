@@ -27,7 +27,7 @@ func Api() *gin.Engine {
 	router.POST("/article/delete", POSTDeleteArticle)
 
 	router.GET("/image", GETImage)
-	router.GET("/image/upload", GETImageUpload)
+	router.POST("/image/upload", POSTImageUpload)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return router

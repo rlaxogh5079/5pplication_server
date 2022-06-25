@@ -144,7 +144,7 @@
             }
         },
         "/image/upload": {
-            "get": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
@@ -158,7 +158,8 @@
                         "type": "file",
                         "description": "imageNo",
                         "name": "imageNo",
-                        "in": "formData"
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {

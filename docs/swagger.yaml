@@ -132,12 +132,13 @@ paths:
       tags:
       - image
   /image/upload:
-    get:
+    post:
       operationId: upload-image
       parameters:
       - description: imageNo
         in: formData
         name: imageNo
+        required: true
         type: file
       produces:
       - application/json

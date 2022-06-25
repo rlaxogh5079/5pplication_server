@@ -156,7 +156,7 @@ const docTemplate = `{
             }
         },
         "/image/upload": {
-            "get": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
@@ -170,7 +170,8 @@ const docTemplate = `{
                         "type": "file",
                         "description": "imageNo",
                         "name": "imageNo",
-                        "in": "formData"
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
