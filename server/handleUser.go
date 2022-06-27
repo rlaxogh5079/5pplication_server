@@ -128,13 +128,6 @@ func POSTDeleteUser(c *gin.Context) {
 	defer db.Close()
 	result, loginErr := login.CheckLogin(db, email, password)
 
-	if loginErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("err : %v", loginErr.Error()),
-		})
-		fmt.Println(loginErr.Error())
-		return
-	}
 	if result == -1 {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "noId",
@@ -145,6 +138,12 @@ func POSTDeleteUser(c *gin.Context) {
 			"message": "wrongPassword",
 		})
 		fmt.Println("비밀번호가 틀렸습니다.")
+	} else if loginErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("err : %v", loginErr.Error()),
+		})
+		fmt.Println(loginErr.Error())
+		return
 	} else {
 		flag, removeErr := database.RemoveUser(db, email)
 		if removeErr != nil {
