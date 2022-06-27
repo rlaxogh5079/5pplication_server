@@ -34,13 +34,7 @@ func POSTLogin(c *gin.Context) {
 	defer db.Close()
 
 	result, loginErr := login.CheckLogin(db, email, password)
-	if loginErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("err : %v", loginErr.Error()),
-		})
-		fmt.Println(loginErr.Error())
-		return
-	}
+
 	if result == -1 {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "noId",
@@ -51,6 +45,12 @@ func POSTLogin(c *gin.Context) {
 			"message": "wrongPassword",
 		})
 		fmt.Println("비밀번호가 틀렸습니다.")
+	} else if loginErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("err : %v", loginErr.Error()),
+		})
+		fmt.Println(loginErr.Error())
+		return
 	} else { // 로그인 성공
 		c.JSON(http.StatusOK, gin.H{
 			"message": "welcome",
@@ -191,17 +191,16 @@ func POSTUpdatePassword(c *gin.Context) {
 	defer db.Close()
 
 	result, updateErr := database.UpdatePassword(db, email, password)
-	if updateErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("err : %v", updateErr.Error()),
-		})
-		return
-	}
 	if result {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "successUpdate",
 		})
 		fmt.Println("성공적으로 업데이트 되었습니다.")
+	} else if updateErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("err : %v", updateErr.Error()),
+		})
+		return
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "cantUpdate",
@@ -234,18 +233,18 @@ func POSTUpdateNickname(c *gin.Context) {
 	defer db.Close()
 
 	result, updateErr := database.UpdateNickname(db, email, nickname)
-	if updateErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("err : %v", updateErr.Error()),
-		})
-		fmt.Println(updateErr.Error())
-		return
-	}
+
 	if result {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "successUpdate",
 		})
 		fmt.Println("성공적으로 업데이트 되었습니다.")
+	} else if updateErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("err : %v", updateErr.Error()),
+		})
+		fmt.Println(updateErr.Error())
+		return
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "cantUpdate",
