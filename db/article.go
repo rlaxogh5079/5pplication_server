@@ -12,7 +12,7 @@ func LoadArticle(db *sql.DB, long float64, lat float64) ([]map[string]interface{
 	// 데이터베이스로 부터 해당 좌표에 있는 모든 글을 불러오는 함수
 	var detectedErr error = nil
 
-	rows, dataErr := db.Query(fmt.Sprintf("SELECT atclNo, email, longitude, latitude, title, body, date FROM article WHERE longitude=\"%v\" AND latitude=\"%v\"", long, lat))
+	rows, dataErr := db.Query(fmt.Sprintf("SELECT atclNo, email, longitude, latitude, title, body, date, images FROM article WHERE longitude=\"%v\" AND latitude=\"%v\"", long, lat))
 	if checkErr(dataErr) {
 		detectedErr = dataErr
 	} else {
@@ -25,7 +25,7 @@ func LoadArticle(db *sql.DB, long float64, lat float64) ([]map[string]interface{
 	for rows.Next() {
 		var article Article
 		var articleData map[string]interface{}
-		loadErr := rows.Scan(&article.AtclNo, &article.Email, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date)
+		loadErr := rows.Scan(&article.AtclNo, &article.Email, &article.Long, &article.Lat, &article.Title, &article.Body, &article.Date, &article.Images)
 		if checkErr(loadErr) {
 			detectedErr = loadErr
 		}
