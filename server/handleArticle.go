@@ -44,6 +44,7 @@ func GETArticles(c *gin.Context) {
 			return
 		} else {
 			c.JSON(http.StatusOK, article)
+			return
 		}
 	}
 
